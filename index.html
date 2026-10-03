@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Conversor de temperaturas entre Celsius, Kelvin, Fahrenheit y Rankine, con fórmulas, validación del cero absoluto e historial.">
+  <meta name="theme-color" content="#1f3a5f">
+  <title>Termoconversor · Conversor de temperaturas</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='26' y='6' width='12' height='38' rx='6' fill='%23e8eef6' stroke='%231f3a5f' stroke-width='3'/%3E%3Ccircle cx='32' cy='48' r='11' fill='%23e4572e' stroke='%231f3a5f' stroke-width='3'/%3E%3Crect x='29.5' y='22' width='5' height='24' rx='2.5' fill='%23e4572e'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#conversor">Saltar al conversor</a>
+
+  <header class="topbar">
+    <div class="brand">
+      <svg class="brand-icon" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+        <rect x="19" y="4" width="10" height="29" rx="5" class="thermo-glass"/>
+        <circle cx="24" cy="37" r="8" class="thermo-ball"/>
+        <rect x="22" y="15" width="4" height="22" rx="2" class="thermo-ball"/>
+        <path d="M33 10h6M33 16h4M33 22h6M33 28h4" class="thermo-ticks"/>
+      </svg>
+      <div>
+        <p class="brand-name">Termoconversor</p>
+        <p class="brand-sub">Celsius · Kelvin · Fahrenheit · Rankine</p>
+      </div>
+    </div>
+    <button id="themeToggle" class="icon-btn" type="button" aria-label="Activar modo oscuro" title="Cambiar tema">
+      <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/></svg>
+      <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4.5"/><path d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M4.6 19.4l2.1-2.1M17.3 6.7l2.1-2.1"/></svg>
+    </button>
+  </header>
+
+  <main>
+    <section class="intro">
+      <h1>Convierte temperaturas y entiende cada fórmula</h1>
+      <p>Escribe un valor, elige las escalas y observa el resultado, la fórmula aplicada y su equivalencia en las cuatro escalas.</p>
+    </section>
+
+    <section class="workspace" id="conversor" aria-label="Conversor de temperaturas">
+      <!-- Panel de entrada -->
+      <div class="card converter">
+        <h2 class="card-title">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M14 14.8V5a2 2 0 1 0-4 0v9.8a4 4 0 1 0 4 0Z"/></svg>
+          Datos de entrada
+        </h2>
+
+        <form id="convertForm" novalidate>
+          <div class="field">
+            <label for="tempInput">Temperatura a convertir</label>
+            <div class="input-wrap">
+              <input id="tempInput" name="tempInput" type="number" step="any" inputmode="decimal"
+                     placeholder="Ej.: 25" autocomplete="off" aria-describedby="inputHelp inputError">
+              <span id="inputUnit" class="unit-badge" aria-hidden="true">°C</span>
+            </div>
+            <p id="inputHelp" class="help">Mínimo permitido: −273.15 °C (cero absoluto).</p>
+            <p id="inputError" class="error-msg" role="alert" hidden></p>
+          </div>
+
+          <div class="scales">
+            <div class="field">
+              <label for="fromScale">Escala de origen</label>
+              <select id="fromScale" name="fromScale">
+                <option value="C" selected>Celsius (°C)</option>
+                <option value="K">Kelvin (K)</option>
+                <option value="F">Fahrenheit (°F)</option>
+                <option value="R">Rankine (°R)</option>
+              </select>
+            </div>
+
+            <button id="swapBtn" class="swap-btn" type="button" aria-label="Intercambiar escala de origen y destino" title="Intercambiar escalas (Alt + I)">
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 7h12l-3.5-3.5M17 17H5l3.5 3.5"/></svg>
+            </button>
+
+            <div class="field">
+              <label for="toScale">Escala de destino</label>
+              <select id="toScale" name="toScale">
+                <option value="C">Celsius (°C)</option>
+                <option value="K">Kelvin (K)</option>
+                <option value="F" selected>Fahrenheit (°F)</option>
+                <option value="R">Rankine (°R)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field field-inline">
+            <label for="decimals">Decimales del resultado</label>
+            <select id="decimals" name="decimals">
+              <option value="0">0</option>
+              <option value="1">1</option>
+              <option value="2" selected>2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+            </select>
+          </div>
+
+          <div class="actions">
+            <button type="submit" class="btn btn-primary">
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+              Convertir
+            </button>
+            <button id="clearBtn" type="button" class="btn btn-ghost">
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6 6 18"/></svg>
+              Limpiar
+            </button>
+          </div>
+        </form>
+
+        <p class="kbd-hint">
+          Atajos: <kbd>Enter</kbd> convierte y guarda · <kbd>Alt</kbd> + <kbd>I</kbd> intercambia · <kbd>Esc</kbd> limpia
+        </p>
+      </div>
+
+      <!-- Panel de resultado -->
+      <div class="card result-card" id="resultCard" data-state="empty">
+        <div class="result-head">
+          <div class="result-main">
+            <p class="eyebrow">Resultado</p>
+            <output id="resultValue" class="result-value" for="tempInput fromScale toScale decimals" aria-live="polite">—</output>
+            <p id="resultDetail" class="result-detail">Ingresa una temperatura para comenzar.</p>
+          </div>
+          <button id="copyBtn" type="button" class="btn btn-small" disabled aria-label="Copiar resultado al portapapeles">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>
+            Copiar
+          </button>
+        </div>
+
+        <div class="indicator">
+          <div class="thermometer" aria-hidden="true">
+            <div class="thermo-tube"><div id="thermoFill" class="thermo-fill"></div></div>
+            <div id="thermoBulb" class="thermo-bulb"></div>
+          </div>
+          <div class="indicator-info">
+            <span id="tempBadge" class="temp-badge"><span class="dot" aria-hidden="true"></span><span id="tempBadgeText">Sin dato</span></span>
+            <p id="tempReference" class="temp-reference">El indicador cambia de color según la temperatura convertida: azul para frío, verde azulado para templado y rojo para caliente.</p>
+            <div class="scale-strip" aria-hidden="true">
+              <span>Frío</span><span>Templado</span><span>Caliente</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="formula-box">
+          <p class="eyebrow">Fórmula aplicada</p>
+          <code id="formulaText" class="formula-text">°F = (°C × 9/5) + 32</code>
+          <p id="formulaSteps" class="formula-steps">Sustitución: ingresa un valor para ver el cálculo paso a paso.</p>
+        </div>
+
+        <div class="equivalents">
+          <p class="eyebrow">Equivalencias en las cuatro escalas</p>
+          <div id="eqGrid" class="eq-grid">
+            <div class="eq-item" data-scale="C"><span class="eq-label">Celsius</span><span class="eq-value">—</span></div>
+            <div class="eq-item" data-scale="K"><span class="eq-label">Kelvin</span><span class="eq-value">—</span></div>
+            <div class="eq-item" data-scale="F"><span class="eq-label">Fahrenheit</span><span class="eq-value">—</span></div>
+            <div class="eq-item" data-scale="R"><span class="eq-label">Rankine</span><span class="eq-value">—</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Historial -->
+    <section class="card history" aria-labelledby="historyTitle">
+      <div class="history-head">
+        <h2 id="historyTitle" class="card-title">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>
+          Historial de la sesión
+        </h2>
+        <button id="clearHistoryBtn" type="button" class="btn btn-small btn-ghost" disabled>Borrar historial</button>
+      </div>
+      <p id="historyEmpty" class="history-empty">Aún no hay conversiones. Presiona <strong>Convertir</strong> o <kbd>Enter</kbd> para guardar una; también se guardan automáticamente cuando dejas de escribir.</p>
+      <ol id="historyList" class="history-list" aria-label="Últimas conversiones"></ol>
+    </section>
+
+    <!-- Contenido educativo -->
+    <section class="learn" aria-labelledby="learnTitle">
+      <h2 id="learnTitle" class="section-title">Aprende sobre las escalas</h2>
+
+      <div class="learn-grid">
+        <article class="card scale-card" data-tone="cold">
+          <header><span class="scale-symbol">°C</span><h3>Celsius</h3></header>
+          <p>Escala relativa basada en el agua: <strong>0 °C</strong> es su punto de congelación y <strong>100 °C</strong> su punto de ebullición a nivel del mar.</p>
+          <p class="uses"><strong>Usos:</strong> vida cotidiana, meteorología, medicina y laboratorios en casi todo el mundo, incluida Colombia.</p>
+        </article>
+
+        <article class="card scale-card" data-tone="mild">
+          <header><span class="scale-symbol">K</span><h3>Kelvin</h3></header>
+          <p>Escala absoluta del Sistema Internacional. Comienza en el cero absoluto (<strong>0 K</strong>) y cada kelvin tiene el mismo tamaño que un grado Celsius. No lleva símbolo de grado.</p>
+          <p class="uses"><strong>Usos:</strong> física, química, termodinámica, astronomía y cálculos con gases ideales.</p>
+        </article>
+
+        <article class="card scale-card" data-tone="warm">
+          <header><span class="scale-symbol">°F</span><h3>Fahrenheit</h3></header>
+          <p>Escala relativa en la que el agua se congela a <strong>32 °F</strong> y hierve a <strong>212 °F</strong>. Un grado Fahrenheit equivale a 5/9 de un grado Celsius.</p>
+          <p class="uses"><strong>Usos:</strong> clima y vida cotidiana en Estados Unidos; aparece en manuales, fichas técnicas y recetas de origen estadounidense.</p>
+        </article>
+
+        <article class="card scale-card" data-tone="hot">
+          <header><span class="scale-symbol">°R</span><h3>Rankine</h3></header>
+          <p>Escala absoluta con grados del tamaño de los Fahrenheit. Empieza en <strong>0 °R</strong> (cero absoluto) y el agua se congela a <strong>491.67 °R</strong>.</p>
+          <p class="uses"><strong>Usos:</strong> ingeniería térmica y termodinámica aplicada con unidades anglosajonas (calderas, turbinas, refrigeración).</p>
+        </article>
+      </div>
+
+      <div class="learn-grid learn-grid-2">
+        <article class="card info-card">
+          <h3>
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2v20M4.9 6l14.2 12M4.9 18 19.1 6"/></svg>
+            ¿Qué es el cero absoluto?
+          </h3>
+          <p>Es la temperatura más baja posible desde el punto de vista teórico: el estado en el que un sistema tiene la mínima energía térmica. Ninguna temperatura puede estar por debajo de él, por eso el conversor rechaza esos valores.</p>
+          <ul class="abs-zero">
+            <li><span>Celsius</span><strong>−273.15 °C</strong></li>
+            <li><span>Kelvin</span><strong>0 K</strong></li>
+            <li><span>Fahrenheit</span><strong>−459.67 °F</strong></li>
+            <li><span>Rankine</span><strong>0 °R</strong></li>
+          </ul>
+        </article>
+
+        <article class="card info-card">
+          <h3>
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 19h16M7 15l3-3 3 2 4-6"/></svg>
+            Ejemplo práctico
+          </h3>
+          <p>Un día en Cali marca <strong>30 °C</strong>. ¿Cuánto es en las otras escalas?</p>
+          <ol class="example-steps">
+            <li><span>Fahrenheit:</span> °F = (30 × 9/5) + 32 = 54 + 32 = <strong>86 °F</strong></li>
+            <li><span>Kelvin:</span> K = 30 + 273.15 = <strong>303.15 K</strong></li>
+            <li><span>Rankine:</span> °R = (30 + 273.15) × 9/5 = <strong>545.67 °R</strong></li>
+          </ol>
+          <button id="tryExampleBtn" type="button" class="btn btn-small">Probar este ejemplo en el conversor</button>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>Termoconversor · Recurso educativo hecho con HTML, CSS y JavaScript puro. Funciona sin conexión y sin instalaciones.</p>
+  </footer>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
